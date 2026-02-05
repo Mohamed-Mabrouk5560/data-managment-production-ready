@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البحث عن سجل</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">نظام البيانات</div>
+            <ul class="sidebar-nav">
+                <li><a href="form.html">إدخال البيانات</a></li>
+                <li><a href="search.html" class="active">البحث عن سجل</a></li>
+                <li><a href="#" onclick="logout()">تسجيل الخروج</a></li>
+            </ul>
+        </aside>
+
+        <!-- Mobile menu toggle -->
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">البحث عن سجل</h1>
+                    <p class="card-subtitle">أدخل الرقم القومي للبحث</p>
+                </div>
+
+                <form id="search-form" onsubmit="handleSearch(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="search-national-id">الرقم القومي (14 رقم)</label>
+                        <input type="text" id="search-national-id" class="form-input" required pattern="\d{14}"
+                            maxlength="14" placeholder="12345678901234">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="search-btn">
+                        بحث
+                    </button>
+                </form>
+            </div>
+
+            <!-- Search results -->
+            <div id="search-results" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">نتائج البحث</h2>
+                    </div>
+
+                    <div id="record-details"></div>
+                </div>
+            </div>
+
+            <!-- No results message -->
+            <div id="no-results" class="card hidden">
+                <p class="text-center" style="color: var(--text-secondary);">
+                    لم يتم العثور على سجل بهذا الرقم القومي
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        // Check authentication
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        // Toggle mobile menu
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Handle search
+        async function handleSearch(event) {
+            event.preventDefault();
+
+            const nationalId = document.getElementById('search-national-id').value;
+            const btn = document.getElementById('search-btn');
+            const resultsDiv = document.getElementById('search-results');
+            const noResultsDiv = document.getElementById('no-results');
+
+            // Hide previous results
+            resultsDiv.classList.add('hidden');
+            noResultsDiv.classList.add('hidden');
+
+            // Show loading state
+            btn.disabled = true;
+            btn.classList.add('btn-loading');
+            btn.textContent = '';
+
+            const result = await searchByNationalId(nationalId);
+
+            // Reset button
+            btn.disabled = false;
+            btn.classList.remove('btn-loading');
+            btn.textContent = 'بحث';
+
+            if (result.success && result.data) {
+                displayRecord(result.data);
+                resultsDiv.classList.remove('hidden');
+            } else if (result.success && !result.data) {
+                noResultsDiv.classList.remove('hidden');
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+
+        // Display record details
+        function displayRecord(record) {
+            const detailsDiv = document.getElementById('record-details');
+
+            const fields = [
+                { label: 'التاريخ', key: 'Timestamp' },
+                { label: 'الاسم ثلاثي', key: 'الاسم ثلاثي' },
+                { label: 'رقم التليفون', key: 'رقم التليفون' },
+                { label: 'القرية', key: 'القرية' },
+                { label: 'المحافظة', key: 'المحافظة' },
+                { label: 'الرقم القومي', key: 'الرقم القومي' },
+                { label: 'نوع الاعاقة', key: 'نوع الاعاقة' },
+                { label: 'دليل القرية', key: 'دليل القرية' },
+                { label: 'رقم دليل القرية', key: 'رقم دليل القرية' },
+                { label: 'المركز الطبي الشريك', key: 'المركز الطبي الشريك' },
+                { label: 'الخدمة المقدمة', key: 'الخدمة المقدمة' },
+                { label: 'فورتي موكس', key: 'فورتي موكس' },
+                { label: 'الشركة الشريكة بتنفيذ النظارات', key: 'الشركة الشريكة بتنفيذ النظارات' },
+                { label: 'رقم مسؤول الشركة', key: 'رقم مسؤول الشركة' },
+                { label: 'الملاحظات الخاصة بتنفيذ النظارات', key: 'الملاحظات الخاصة بتنفيذ النظارات' },
+                { label: 'المركز والشريك الطبي', key: 'المركز والشريك الطبي' },
+                { label: 'الجهة', key: 'الجهة' },
+                { label: 'الملاحظات للعمليات', key: 'الملاحظات للعمليات' },
+                { label: 'الكود', key: 'الكود' }
+            ];
+
+            let html = '<div style="display: grid; gap: 1rem;">';
+
+            fields.forEach(field => {
+                const value = record[field.key] || '-';
+                html += `
+          <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <div style="font-weight: 600; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.25rem;">
+              ${field.label}
+            </div>
+            <div style="color: var(--text-primary);">
+              ${value}
+            </div>
+          </div>
+        `;
+            });
+
+            html += '</div>';
+            detailsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>

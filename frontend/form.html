@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدخال البيانات</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">نظام البيانات</div>
+            <ul class="sidebar-nav">
+                <li><a href="form.html" class="active">إدخال البيانات</a></li>
+                <li><a href="search.html">البحث عن سجل</a></li>
+                <li><a href="#" onclick="logout()">تسجيل الخروج</a></li>
+            </ul>
+        </aside>
+
+        <!-- Mobile menu toggle -->
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">نموذج إدخال البيانات</h1>
+                    <p class="card-subtitle">يرجى ملء جميع الحقول المطلوبة</p>
+                </div>
+
+                <form id="data-form" onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="name">الاسم ثلاثي *</label>
+                        <input type="text" id="name" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phone">رقم التليفون *</label>
+                        <input type="tel" id="phone" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="village">القرية *</label>
+                        <input type="text" id="village" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="governorate">المحافظة *</label>
+                        <input type="text" id="governorate" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="national-id">الرقم القومي * (14 رقم)</label>
+                        <input type="text" id="national-id" class="form-input" required pattern="\d{14}" maxlength="14"
+                            placeholder="12345678901234">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="disability-type">نوع الاعاقة</label>
+                        <input type="text" id="disability-type" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="village-guide">دليل القرية</label>
+                        <input type="text" id="village-guide" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="village-guide-number">رقم دليل القرية</label>
+                        <input type="text" id="village-guide-number" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="medical-center">المركز الطبي الشريك</label>
+                        <input type="text" id="medical-center" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="service">الخدمة المقدمة</label>
+                        <input type="text" id="service" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="forty-mox">فورتي موكس</label>
+                        <input type="text" id="forty-mox" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="glasses-company">الشركة الشريكة بتنفيذ النظارات</label>
+                        <input type="text" id="glasses-company" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="company-manager">رقم مسؤول الشركة</label>
+                        <input type="text" id="company-manager" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="glasses-notes">الملاحظات الخاصة بتنفيذ النظارات</label>
+                        <textarea id="glasses-notes" class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="center-partner">المركز والشريك الطبي</label>
+                        <input type="text" id="center-partner" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="entity">الجهة</label>
+                        <input type="text" id="entity" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="operations-notes">الملاحظات للعمليات</label>
+                        <textarea id="operations-notes" class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="code">الكود</label>
+                        <input type="text" id="code" class="form-input">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="submit-btn">
+                        إرسال البيانات
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        // Check authentication
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        // Toggle mobile menu
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Handle form submission
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const formData = {
+                'الاسم ثلاثي': document.getElementById('name').value,
+                'رقم التليفون': document.getElementById('phone').value,
+                'القرية': document.getElementById('village').value,
+                'المحافظة': document.getElementById('governorate').value,
+                'الرقم القومي': document.getElementById('national-id').value,
+                'نوع الاعاقة': document.getElementById('disability-type').value,
+                'دليل القرية': document.getElementById('village-guide').value,
+                'رقم دليل القرية': document.getElementById('village-guide-number').value,
+                'المركز الطبي الشريك': document.getElementById('medical-center').value,
+                'الخدمة المقدمة': document.getElementById('service').value,
+                'فورتي موكس': document.getElementById('forty-mox').value,
+                'الشركة الشريكة بتنفيذ النظارات': document.getElementById('glasses-company').value,
+                'رقم مسؤول الشركة': document.getElementById('company-manager').value,
+                'الملاحظات الخاصة بتنفيذ النظارات': document.getElementById('glasses-notes').value,
+                'المركز والشريك الطبي': document.getElementById('center-partner').value,
+                'الجهة': document.getElementById('entity').value,
+                'الملاحظات للعمليات': document.getElementById('operations-notes').value,
+                'الكود': document.getElementById('code').value
+            };
+
+            const btn = document.getElementById('submit-btn');
+
+            // Show loading state
+            btn.disabled = true;
+            btn.classList.add('btn-loading');
+            btn.textContent = '';
+
+            const result = await submitData(formData);
+
+            // Reset button
+            btn.disabled = false;
+            btn.classList.remove('btn-loading');
+            btn.textContent = 'إرسال البيانات';
+
+            if (result.success) {
+                showToast('تم إرسال البيانات بنجاح', 'success');
+                document.getElementById('data-form').reset();
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

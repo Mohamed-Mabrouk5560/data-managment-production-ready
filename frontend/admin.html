@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - المسؤول</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">نظام البيانات</div>
+            <ul class="sidebar-nav">
+                <li><a href="form.html">إدخال البيانات</a></li>
+                <li><a href="search.html">البحث عن سجل</a></li>
+                <li><a href="admin.html" class="active">لوحة التحكم</a></li>
+                <li><a href="#" onclick="logout()">تسجيل الخروج</a></li>
+            </ul>
+        </aside>
+
+        <!-- Mobile menu toggle -->
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">لوحة التحكم - المسؤول</h1>
+                    <p class="card-subtitle">إدارة المستخدمين والبيانات</p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('users')">إدارة المستخدمين</button>
+                    <button class="tab" onclick="switchTab('data')">إدارة البيانات</button>
+                </div>
+
+                <!-- Users Management Tab -->
+                <div id="users-tab" class="tab-content active">
+                    <h3 class="mb-2">المستخدمون في انتظار الموافقة</h3>
+                    <div id="pending-users-container">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <!-- Data Management Tab -->
+                <div id="data-tab" class="tab-content">
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="search-filter" class="form-input" placeholder="البحث في السجلات..."
+                            onkeyup="filterRecords()">
+                    </div>
+
+                    <div id="records-container">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">تعديل السجل</h2>
+            </div>
+            <form id="edit-form" onsubmit="handleUpdate(event)">
+                <div id="edit-fields"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="update-btn">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        // Check authentication and admin role
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        if (getUserRole() !== 'admin') {
+            showToast('غير مصرح لك بالوصول إلى هذه الصفحة', 'error');
+            setTimeout(() => {
+                window.location.href = 'form.html';
+            }, 2000);
+        }
+
+        let allRecords = [];
+        let currentEditNationalId = null;
+
+        // Load data on page load
+        loadPendingUsers();
+        loadAllRecords();
+
+        // Toggle mobile menu
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Switch between tabs
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'users') {
+                tabs[0].classList.add('active');
+                document.getElementById('users-tab').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('data-tab').classList.add('active');
+            }
+        }
+
+        // Load pending users
+        async function loadPendingUsers() {
+            const container = document.getElementById('pending-users-container');
+
+            const result = await getPendingUsers();
+
+            if (result.success) {
+                if (result.data.length === 0) {
+                    container.innerHTML = '<p class="text-center" style="color: var(--text-secondary);">لا يوجد مستخدمون في انتظار الموافقة</p>';
+                } else {
+                    displayPendingUsers(result.data);
+                }
+            } else {
+                container.innerHTML = '<p class="text-center" style="color: var(--danger-color);">فشل في تحميل المستخدمين</p>';
+            }
+        }
+
+        // Display pending users
+        function displayPendingUsers(users) {
+            const container = document.getElementById('pending-users-container');
+
+            let html = '<div class="table-container"><table><thead><tr><th>البريد الإلكتروني</th><th>الدور</th><th>تاريخ التسجيل</th><th>الإجراءات</th></tr></thead><tbody>';
+
+            users.forEach(user => {
+                const date = new Date(user.created).toLocaleDateString('ar-EG');
+                html += `
+          <tr>
+            <td>${user.email}</td>
+            <td>${user.role === 'admin' ? 'مسؤول' : 'مستخدم'}</td>
+            <td>${date}</td>
+            <td>
+              <button class="btn btn-secondary" onclick="approveUser('${user.email}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                موافقة
+              </button>
+            </td>
+          </tr>
+        `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Approve user
+        async function approveUser(email) {
+            if (!confirm(`هل أنت متأكد من الموافقة على المستخدم: ${email}؟`)) {
+                return;
+            }
+
+            const result = await confirmUser(email);
+
+            if (result.success) {
+                showToast('تمت الموافقة على المستخدم بنجاح', 'success');
+                loadPendingUsers();
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+
+        // Load all records
+        async function loadAllRecords() {
+            const container = document.getElementById('records-container');
+
+            const result = await getAllRecords();
+
+            if (result.success) {
+                allRecords = result.data;
+                if (allRecords.length === 0) {
+                    container.innerHTML = '<p class="text-center" style="color: var(--text-secondary);">لا توجد سجلات</p>';
+                } else {
+                    displayRecords(allRecords);
+                }
+            } else {
+                container.innerHTML = '<p class="text-center" style="color: var(--danger-color);">فشل في تحميل السجلات</p>';
+            }
+        }
+
+        // Display records
+        function displayRecords(records) {
+            const container = document.getElementById('records-container');
+
+            let html = '<div class="table-container"><table id="records-table"><thead><tr>';
+            html += '<th>الاسم</th><th>الرقم القومي</th><th>التليفون</th><th>القرية</th><th>المحافظة</th><th>الإجراءات</th>';
+            html += '</tr></thead><tbody>';
+
+            records.forEach(record => {
+                html += `
+          <tr>
+            <td>${record['الاسم ثلاثي'] || '-'}</td>
+            <td>${record['الرقم القومي'] || '-'}</td>
+            <td>${record['رقم التليفون'] || '-'}</td>
+            <td>${record['القرية'] || '-'}</td>
+            <td>${record['المحافظة'] || '-'}</td>
+            <td>
+              <button class="btn btn-outline" onclick='editRecord(${JSON.stringify(record)})' style="padding: 0.5rem 1rem; font-size: 0.875rem; margin-left: 0.5rem;">
+                تعديل
+              </button>
+              <button class="btn btn-danger" onclick="deleteRecordConfirm('${record['الرقم القومي']}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                حذف
+              </button>
+            </td>
+          </tr>
+        `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Filter records
+        function filterRecords() {
+            const searchTerm = document.getElementById('search-filter').value.toLowerCase();
+
+            if (!searchTerm) {
+                displayRecords(allRecords);
+                return;
+            }
+
+            const filtered = allRecords.filter(record => {
+                return Object.values(record).some(value =>
+                    String(value).toLowerCase().includes(searchTerm)
+                );
+            });
+
+            displayRecords(filtered);
+        }
+
+        // Edit record
+        function editRecord(record) {
+            currentEditNationalId = record['الرقم القومي'];
+
+            const fields = [
+                { label: 'الاسم ثلاثي', key: 'الاسم ثلاثي' },
+                { label: 'رقم التليفون', key: 'رقم التليفون' },
+                { label: 'القرية', key: 'القرية' },
+                { label: 'المحافظة', key: 'المحافظة' },
+                { label: 'نوع الاعاقة', key: 'نوع الاعاقة' },
+                { label: 'دليل القرية', key: 'دليل القرية' },
+                { label: 'رقم دليل القرية', key: 'رقم دليل القرية' },
+                { label: 'المركز الطبي الشريك', key: 'المركز الطبي الشريك' },
+                { label: 'الخدمة المقدمة', key: 'الخدمة المقدمة' },
+                { label: 'فورتي موكس', key: 'فورتي موكس' },
+                { label: 'الشركة الشريكة بتنفيذ النظارات', key: 'الشركة الشريكة بتنفيذ النظارات' },
+                { label: 'رقم مسؤول الشركة', key: 'رقم مسؤول الشركة' },
+                { label: 'الملاحظات الخاصة بتنفيذ النظارات', key: 'الملاحظات الخاصة بتنفيذ النظارات' },
+                { label: 'المركز والشريك الطبي', key: 'المركز والشريك الطبي' },
+                { label: 'الجهة', key: 'الجهة' },
+                { label: 'الملاحظات للعمليات', key: 'الملاحظات للعمليات' },
+                { label: 'الكود', key: 'الكود' }
+            ];
+
+            let html = '';
+            fields.forEach(field => {
+                const value = record[field.key] || '';
+                html += `
+          <div class="form-group">
+            <label class="form-label">${field.label}</label>
+            <input type="text" class="form-input" data-field="${field.key}" value="${value}">
+          </div>
+        `;
+            });
+
+            document.getElementById('edit-fields').innerHTML = html;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+            currentEditNationalId = null;
+        }
+
+        // Handle update
+        async function handleUpdate(event) {
+            event.preventDefault();
+
+            const inputs = document.querySelectorAll('#edit-fields input');
+            const updates = {};
+
+            inputs.forEach(input => {
+                const field = input.getAttribute('data-field');
+                updates[field] = input.value;
+            });
+
+            const btn = document.getElementById('update-btn');
+            btn.disabled = true;
+            btn.classList.add('btn-loading');
+            btn.textContent = '';
+
+            const result = await updateRecord(currentEditNationalId, updates);
+
+            btn.disabled = false;
+            btn.classList.remove('btn-loading');
+            btn.textContent = 'حفظ التعديلات';
+
+            if (result.success) {
+                showToast('تم تحديث السجل بنجاح', 'success');
+                closeEditModal();
+                loadAllRecords();
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+
+        // Delete record
+        async function deleteRecordConfirm(nationalId) {
+            if (!confirm(`هل أنت متأكد من حذف السجل رقم: ${nationalId}؟`)) {
+                return;
+            }
+
+            const result = await deleteRecord(nationalId);
+
+            if (result.success) {
+                showToast('تم حذف السجل بنجاح', 'success');
+                loadAllRecords();
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>
