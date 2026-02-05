@@ -51,17 +51,11 @@ function logout() {
 // Register user
 async function register(email, password, role = 'user') {
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'register',
-                email: email,
-                password: password,
-                role: role
-            })
+        // Use GET with URL parameters to avoid CORS preflight
+        const url = `${API_URL}?action=register&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&role=${encodeURIComponent(role)}`;
+
+        const response = await fetch(url, {
+            method: 'GET'
         });
 
         const data = await response.json();
@@ -79,16 +73,11 @@ async function register(email, password, role = 'user') {
 // Login user
 async function login(email, password) {
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'login',
-                email: email,
-                password: password
-            })
+        // Use GET with URL parameters to avoid CORS preflight
+        const url = `${API_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+
+        const response = await fetch(url, {
+            method: 'GET'
         });
 
         const data = await response.json();
