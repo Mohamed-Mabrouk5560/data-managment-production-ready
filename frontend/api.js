@@ -405,3 +405,66 @@ function createToastContainer() {
     document.body.appendChild(container);
     return container;
 }
+// Entity Management
+async function getEntityList(entityName) {
+    try {
+        const url = `${API_URL}?action=getEntityList&entityName=${encodeURIComponent(entityName)}&token=${getToken()}`;
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('getEntityList error:', error);
+        return { success: false, message: 'Network error' };
+    }
+}
+
+async function addEntityValue(entityName, value) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'addEntityValue',
+                token: getToken(),
+                entityName: entityName,
+                value: value
+            })
+        });
+        return await response.json();
+    } catch (error) {
+        return { success: false, message: 'Network error' };
+    }
+}
+
+async function updateEntityValue(entityName, oldValue, newValue) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'updateEntityValue',
+                token: getToken(),
+                entityName: entityName,
+                oldValue: oldValue,
+                newValue: newValue
+            })
+        });
+        return await response.json();
+    } catch (error) {
+        return { success: false, message: 'Network error' };
+    }
+}
+
+async function deleteEntityValue(entityName, value) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'deleteEntityValue',
+                token: getToken(),
+                entityName: entityName,
+                value: value
+            })
+        });
+        return await response.json();
+    } catch (error) {
+        return { success: false, message: 'Network error' };
+    }
+}

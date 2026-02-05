@@ -10,6 +10,14 @@
 
 <body>
     <div class="app-container">
+        <!-- AppBar -->
+        <header class="app-bar">
+            <div class="welcome-msg" id="welcome-message-header">مرحباً بك</div>
+            <div class="app-bar-actions">
+                <button class="aside-toggle" onclick="toggleMenu()">☰</button>
+            </div>
+        </header>
+
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">نظام البيانات</div>
@@ -19,9 +27,6 @@
                 <li><a href="#" onclick="logout()">تسجيل الخروج</a></li>
             </ul>
         </aside>
-
-        <!-- Mobile menu toggle -->
-        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
 
         <!-- Main content -->
         <div class="main-content">
@@ -34,23 +39,8 @@
                 <form id="data-form" onsubmit="handleSubmit(event)">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="name">الاسم ثلاثي *</label>
+                            <label class="form-label" for="name">الاسم رباعي *</label>
                             <input type="text" id="name" class="form-input" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="phone">رقم التليفون *</label>
-                            <input type="tel" id="phone" class="form-input" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="village">القرية *</label>
-                            <input type="text" id="village" class="form-input" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="governorate">المحافظة *</label>
-                            <input type="text" id="governorate" class="form-input" required>
                         </div>
 
                         <div class="form-group">
@@ -60,18 +50,62 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="form-label" for="phone">رقم التليفون *</label>
+                            <input type="tel" id="phone" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">المحافظة *</label>
+                            <div class="form-group-inline">
+                                <select id="governorate" class="form-select" required>
+                                    <option value="">اختر المحافظة...</option>
+                                </select>
+                                <button type="button" class="btn-add-inline"
+                                    onclick="openEntityManager('المحافظات')">+</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">القرية *</label>
+                            <div class="form-group-inline">
+                                <select id="village" class="form-select" required>
+                                    <option value="">اختر القرية...</option>
+                                </select>
+                                <button type="button" class="btn-add-inline"
+                                    onclick="openEntityManager('القرى')">+</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="form-label" for="disability-type">نوع الاعاقة</label>
                             <input type="text" id="disability-type" class="form-input">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="village-guide">دليل القرية</label>
-                            <input type="text" id="village-guide" class="form-input">
+                            <label class="form-label">فورتي موكس</label>
+                            <div class="form-group-inline">
+                                <select id="forty-mox" class="form-select">
+                                    <option value="">اختر...</option>
+                                </select>
+                                <button type="button" class="btn-add-inline"
+                                    onclick="openEntityManager('فورتي موكس')">+</button>
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="village-guide-number">رقم دليل القرية</label>
-                            <input type="text" id="village-guide-number" class="form-input">
+                            <label class="form-label">الشركة الشريكة بتنفيذ النظارات</label>
+                            <div class="form-group-inline">
+                                <select id="glasses-company" class="form-select">
+                                    <option value="">اختر الشركة...</option>
+                                </select>
+                                <button type="button" class="btn-add-inline"
+                                    onclick="openEntityManager('شركات النظارات')">+</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="company-manager">رقم مسؤول الشركة</label>
+                            <input type="text" id="company-manager" class="form-input">
                         </div>
 
                         <div class="form-group">
@@ -89,38 +123,47 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="forty-mox">فورتي موكس</label>
-                            <input type="text" id="forty-mox" class="form-input">
+                            <label class="form-label">المركز والشريك الطبي</label>
+                            <div class="form-group-inline">
+                                <select id="center-partner" class="form-select">
+                                    <option value="">اختر...</option>
+                                </select>
+                                <button type="button" class="btn-add-inline"
+                                    onclick="openEntityManager('الشركاء الطبيين')">+</button>
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="glasses-company">الشركة الشريكة بتنفيذ النظارات</label>
-                            <input type="text" id="glasses-company" class="form-input">
+                            <label class="form-label">الجهة</label>
+                            <div class="form-group-inline">
+                                <select id="entity" class="form-select">
+                                    <option value="">اختر الجهة...</option>
+                                </select>
+                                <button type="button" class="btn-add-inline"
+                                    onclick="openEntityManager('الجهات')">+</button>
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="company-manager">رقم مسؤول الشركة</label>
-                            <input type="text" id="company-manager" class="form-input">
+                            <label class="form-label" for="village-guide">دليل القرية</label>
+                            <input type="text" id="village-guide" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="village-guide-number">رقم دليل القرية</label>
+                            <input type="text" id="village-guide-number" class="form-input">
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label" for="glasses-notes">الملاحظات الخاصة بتنفيذ النظارات</label>
-                            <textarea id="glasses-notes" class="form-textarea"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="center-partner">المركز والشريك الطبي</label>
-                            <input type="text" id="center-partner" class="form-input">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="entity">الجهة</label>
-                            <input type="text" id="entity" class="form-input">
+                            <textarea id="glasses-notes" class="form-textarea"
+                                placeholder="اكتب ملاحظاتك هنا..."></textarea>
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label" for="operations-notes">الملاحظات للعمليات</label>
-                            <textarea id="operations-notes" class="form-textarea"></textarea>
+                            <textarea id="operations-notes" class="form-textarea"
+                                placeholder="اكتب ملاحظاتك هنا..."></textarea>
                         </div>
 
                         <div class="form-group">
@@ -129,7 +172,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block" id="submit-btn">
+                    <button type="submit" class="btn btn-primary btn-block" id="submit-btn" style="margin-top: 2rem;">
                         إرسال البيانات
                     </button>
                 </form>
@@ -137,11 +180,177 @@
         </div>
     </div>
 
+    <!-- Entity Manager Modal -->
+    <div id="entity-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="entity-modal-title" class="modal-title">إدارة القائمة</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group-inline mb-4">
+                    <input type="text" id="new-entity-value" class="form-input" placeholder="أضف قيمة جديدة...">
+                    <button type="button" class="btn btn-primary" onclick="handleAddEntityValue()">إضافة</button>
+                </div>
+                <div id="entity-list-container"
+                    style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; padding: 10px;">
+                    <!-- List items will be injected here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeEntityManager()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <script src="api.js"></script>
     <script>
-        // Check authentication
-        if (!isAuthenticated()) {
-            window.location.href = 'index.html';
+        // Global state for entity manager
+        let currentEntityName = '';
+
+        // Initial load
+        window.addEventListener('load', () => {
+            // Check authentication
+            if (!isAuthenticated()) {
+                window.location.href = 'index.html';
+            }
+
+            // Set welcome message
+            const userEmail = getUserEmail();
+            if (userEmail) {
+                document.getElementById('welcome-message-header').textContent = `مرحباً بك، ${userEmail}`;
+            }
+
+            // Populate all entity dropdowns
+            populateAllDropdowns();
+        });
+
+        async function populateAllDropdowns() {
+            const entities = [
+                { name: 'المحافظات', id: 'governorate' },
+                { name: 'القرى', id: 'village' },
+                { name: 'فورتي موكس', id: 'forty-mox' },
+                { name: 'شركات النظارات', id: 'glasses-company' },
+                { name: 'الشركاء الطبيين', id: 'center-partner' },
+                { name: 'الجهات', id: 'entity' }
+            ];
+
+            for (const entity of entities) {
+                await populateDropdown(entity.name, entity.id);
+            }
+        }
+
+        async function populateDropdown(entityName, selectId) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+
+            const result = await getEntityList(entityName);
+            if (result.success) {
+                const currentValue = select.value;
+                // Keep the first option (Choose...)
+                const firstOption = select.options[0];
+                select.innerHTML = '';
+                select.appendChild(firstOption);
+
+                result.data.forEach(val => {
+                    const option = document.createElement('option');
+                    option.value = val;
+                    option.textContent = val;
+                    select.appendChild(option);
+                });
+
+                // Restore value if possible
+                select.value = currentValue;
+            }
+        }
+
+        // Entity Manager Functions
+        async function openEntityManager(entityName) {
+            currentEntityName = entityName;
+            document.getElementById('entity-modal-title').textContent = `إدارة قائمة: ${entityName}`;
+            document.getElementById('entity-modal').classList.add('active');
+            await loadEntityListIntoModal();
+        }
+
+        function closeEntityManager() {
+            document.getElementById('entity-modal').classList.remove('active');
+            currentEntityName = '';
+            document.getElementById('new-entity-value').value = '';
+        }
+
+        async function loadEntityListIntoModal() {
+            const container = document.getElementById('entity-list-container');
+            container.innerHTML = '<p class="text-center">جاري التحميل...</p>';
+
+            const result = await getEntityList(currentEntityName);
+            if (result.success) {
+                if (result.data.length === 0) {
+                    container.innerHTML = '<p class="text-center">القائمة فارغة</p>';
+                } else {
+                    let html = '<ul style="list-style: none; padding: 0;">';
+                    result.data.forEach(val => {
+                        html += `
+                            <li style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                                <span>${val}</span>
+                                <button type="button" class="btn btn-danger btn-small" onclick="handleDeleteEntityValue('${val}')">حذف</button>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    container.innerHTML = html;
+                }
+            } else {
+                container.innerHTML = '<p class="text-center text-danger">فشل في تحميل القائمة</p>';
+            }
+        }
+
+        async function handleAddEntityValue() {
+            const input = document.getElementById('new-entity-value');
+            const value = input.value.trim();
+
+            if (!value) return;
+
+            showToast('جاري الإضافة...', 'info');
+            const result = await addEntityValue(currentEntityName, value);
+
+            if (result.success) {
+                showToast('تمت الإضافة بنجاح', 'success');
+                input.value = '';
+                await loadEntityListIntoModal();
+                // Update the corresponding dropdown in the main form
+                const selectId = getSelectIdByEntityName(currentEntityName);
+                if (selectId) await populateDropdown(currentEntityName, selectId);
+            } else {
+                showToast(result.message || 'فشل في الإضافة', 'error');
+            }
+        }
+
+        async function handleDeleteEntityValue(value) {
+            if (!confirm(`هل أنت متأكد من حذف "${value}"؟`)) return;
+
+            showToast('جاري الحذف...', 'info');
+            const result = await deleteEntityValue(currentEntityName, value);
+
+            if (result.success) {
+                showToast('تم الحذف بنجاح', 'success');
+                await loadEntityListIntoModal();
+                // Update the corresponding dropdown in the main form
+                const selectId = getSelectIdByEntityName(currentEntityName);
+                if (selectId) await populateDropdown(currentEntityName, selectId);
+            } else {
+                showToast(result.message || 'فشل في الحذف', 'error');
+            }
+        }
+
+        function getSelectIdByEntityName(entityName) {
+            const map = {
+                'المحافظات': 'governorate',
+                'القرى': 'village',
+                'فورتي موكس': 'forty-mox',
+                'شركات النظارات': 'glasses-company',
+                'الشركاء الطبيين': 'center-partner',
+                'الجهات': 'entity'
+            };
+            return map[entityName];
         }
 
         // Toggle mobile menu
@@ -150,11 +359,17 @@
             sidebar.classList.toggle('active');
         }
 
+        // Logout
+        function logout() {
+            clearToken();
+            window.location.href = 'index.html';
+        }
+
         // Tag Input Logic
         const serviceInput = document.getElementById('serviceInput');
-        const serviceContainer = document.getElementById('serviceTagsContainer');
+        const serviceContainer = document.getElementById('serviceTagsContainer'); // Renamed from tagsContainer in instruction to match original
         const serviceHidden = document.getElementById('serviceHidden');
-        let services = [];
+        let services = []; // Renamed from selectedServices in instruction to match original
 
         serviceInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
@@ -197,7 +412,7 @@
         }
 
         function updateHiddenInput() {
-            serviceHidden.value = services.join(',');
+            serviceHidden.value = services.join(', ');
         }
 
 
@@ -205,46 +420,56 @@
         async function handleSubmit(event) {
             event.preventDefault();
 
+            if (services.length === 0) {
+                showToast('يرجى إضافة خدمة واحدة على الأقل', 'error');
+                return;
+            }
+
             const formData = {
-                'الاسم ثلاثي': document.getElementById('name').value,
-                'رقم التليفون': document.getElementById('phone').value,
-                'القرية': document.getElementById('village').value,
-                'المحافظة': document.getElementById('governorate').value,
+                'الاسم رباعي': document.getElementById('name').value,
                 'الرقم القومي': document.getElementById('national-id').value,
+                'رقم التليفون': document.getElementById('phone').value,
+                'المحافظة': document.getElementById('governorate').value,
+                'القرية': document.getElementById('village').value,
                 'نوع الاعاقة': document.getElementById('disability-type').value,
-                'دليل القرية': document.getElementById('village-guide').value,
-                'رقم دليل القرية': document.getElementById('village-guide-number').value,
-                'المركز الطبي الشريك': document.getElementById('medical-center').value,
-                'الخدمة المقدمة': serviceHidden.value, // Use the hidden input value
                 'فورتي موكس': document.getElementById('forty-mox').value,
                 'الشركة الشريكة بتنفيذ النظارات': document.getElementById('glasses-company').value,
                 'رقم مسؤول الشركة': document.getElementById('company-manager').value,
-                'الملاحظات الخاصة بتنفيذ النظارات': document.getElementById('glasses-notes').value,
+                'المركز الطبي الشريك': document.getElementById('medical-center').value,
+                'الخدمة': serviceHidden.value,
                 'المركز والشريك الطبي': document.getElementById('center-partner').value,
                 'الجهة': document.getElementById('entity').value,
+                'دليل القرية': document.getElementById('village-guide').value,
+                'رقم دليل القرية': document.getElementById('village-guide-number').value,
+                'الملاحظات الخاصة بتنفيذ النظارات': document.getElementById('glasses-notes').value,
                 'الملاحظات للعمليات': document.getElementById('operations-notes').value,
                 'الكود': document.getElementById('code').value
             };
 
             const btn = document.getElementById('submit-btn');
+            const originalText = btn.textContent;
 
-            // Show loading state
             btn.disabled = true;
             btn.classList.add('btn-loading');
-            btn.textContent = '';
+            btn.textContent = 'جاري الإرسال...';
 
-            const result = await submitData(formData);
-
-            // Reset button
-            btn.disabled = false;
-            btn.classList.remove('btn-loading');
-            btn.textContent = 'إرسال البيانات';
-
-            if (result.success) {
-                showToast('تم إرسال البيانات بنجاح', 'success');
-                document.getElementById('data-form').reset();
-            } else {
-                showToast(result.message, 'error');
+            try {
+                const result = await submitData(formData);
+                if (result.success) {
+                    showToast('تم إرسال البيانات بنجاح', 'success');
+                    document.getElementById('data-form').reset();
+                    services = [];
+                    renderTags();
+                    updateHiddenInput();
+                } else {
+                    showToast(result.message || 'فشل إرسال البيانات', 'error');
+                }
+            } catch (error) {
+                showToast('حدث خطأ في الشبكة', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('btn-loading');
+                btn.textContent = originalText;
             }
         }
     </script>

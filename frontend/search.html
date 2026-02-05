@@ -10,6 +10,14 @@
 
 <body>
     <div class="app-container">
+        <!-- AppBar -->
+        <header class="app-bar">
+            <div class="welcome-msg" id="welcome-message-header">مرحباً بك</div>
+            <div class="app-bar-actions">
+                <button class="aside-toggle" onclick="toggleMenu()">☰</button>
+            </div>
+        </header>
+
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">نظام البيانات</div>
@@ -20,9 +28,6 @@
             </ul>
         </aside>
 
-        <!-- Mobile menu toggle -->
-        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-
         <!-- Main content -->
         <div class="main-content">
             <div class="card">
@@ -32,16 +37,29 @@
                 </div>
 
                 <form id="search-form" onsubmit="handleSearch(event)">
-                    <div class="form-group">
-                        <label class="form-label" for="search-national-id">الرقم القومي (14 رقم)</label>
-                        <input type="text" id="search-national-id" class="form-input" required pattern="\d{14}"
-                            maxlength="14" placeholder="12345678901234">
+                    <div class="search-row">
+                        <div class="form-group search-field">
+                            <label class="form-label" for="search-national-id">الرقم القومي (14 رقم)</label>
+                            <input type="text" id="search-national-id" class="form-input" required pattern="\d{14}"
+                                maxlength="14" placeholder="12345678901234">
+                        </div>
+                        <div class="search-btn-container">
+                            <button type="submit" class="btn btn-primary" id="search-btn" style="min-width: 120px;">
+                                بحث
+                            </button>
+                        </div>
                     </div>
-
-                    <button type="submit" class="btn btn-primary btn-block" id="search-btn">
-                        بحث
-                    </button>
                 </form>
+            </div>
+
+            <!-- Initial Placeholder -->
+            <div id="initial-placeholder" class="card placeholder-container">
+                <svg class="placeholder-vector" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <p class="placeholder-text">أدخل الرقم القومي لبدء البحث عن سجل</p>
             </div>
 
             <!-- Search results -->
@@ -56,10 +74,13 @@
             </div>
 
             <!-- No results message -->
-            <div id="no-results" class="card hidden">
-                <p class="text-center" style="color: var(--text-secondary);">
-                    لم يتم العثور على سجل بهذا الرقم القومي
-                </p>
+            <div id="no-results" class="card placeholder-container hidden">
+                <svg class="placeholder-vector" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5">
+                    <path d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <p class="placeholder-text">عذراً، لم يتم العثور على سجل بهذا الرقم القومي</p>
             </div>
         </div>
     </div>
@@ -69,6 +90,12 @@
         // Check authentication
         if (!isAuthenticated()) {
             window.location.href = 'index.html';
+        }
+
+        // Set welcome message
+        const userEmail = getUserEmail();
+        if (userEmail) {
+            document.getElementById('welcome-message-header').textContent = `مرحباً بك، ${userEmail}`;
         }
 
         // Toggle mobile menu
@@ -85,10 +112,12 @@
             const btn = document.getElementById('search-btn');
             const resultsDiv = document.getElementById('search-results');
             const noResultsDiv = document.getElementById('no-results');
+            const initialDiv = document.getElementById('initial-placeholder');
 
-            // Hide previous results
+            // Hide previous results and initial placeholder
             resultsDiv.classList.add('hidden');
             noResultsDiv.classList.add('hidden');
+            if (initialDiv) initialDiv.classList.add('hidden');
 
             // Show loading state
             btn.disabled = true;

@@ -1,217 +1,197 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تسجيل الدخول / التسجيل</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول / التسجيل</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <div class="app-container">
-    <div class="main-content">
-      <div class="card" style="max-width: 500px; margin: 3rem auto;">
-        <div class="card-header text-center">
-          <h1 class="card-title">نظام إدارة البيانات</h1>
-          <p class="card-subtitle">مرحباً بك</p>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="card" style="max-width: 500px; margin: 3rem auto;">
+                <div class="card-header text-center">
+                    <h1 class="card-title">نظام إدارة البيانات</h1>
+                    <p class="card-subtitle">مرحباً بك</p>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-tab" class="tab-content active">
+                    <form id="login-form" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="login-email">البريد الإلكتروني</label>
+                            <input type="email" id="login-email" class="form-input" required
+                                placeholder="example@email.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="login-password">كلمة المرور</label>
+                            <input type="password" id="login-password" class="form-input" required
+                                placeholder="••••••••">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" id="login-btn">
+                            تسجيل الدخول
+                        </button>
+
+                        <div class="auth-toggle-container text-center mt-3">
+                            <span>ليس لديك حساب؟</span>
+                            <button type="button" class="btn-link" onclick="switchAuth('register')">إنشاء حساب
+                                جديد</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-tab" class="tab-content">
+                    <form id="register-form" onsubmit="handleRegister(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="register-email">البريد الإلكتروني</label>
+                            <input type="email" id="register-email" class="form-input" required
+                                placeholder="example@email.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="register-password">كلمة المرور</label>
+                            <input type="password" id="register-password" class="form-input" required minlength="6"
+                                placeholder="••••••••">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="register-confirm">تأكيد كلمة المرور</label>
+                            <input type="password" id="register-confirm" class="form-input" required minlength="6"
+                                placeholder="••••••••">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="register-role">نوع الحساب</label>
+                            <select id="register-role" class="form-select">
+                                <option value="user">مستخدم عادي</option>
+                                <option value="admin">مسؤول</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" id="register-btn">
+                            إنشاء حساب
+                        </button>
+
+                        <div class="auth-toggle-container text-center mt-3">
+                            <span>لديك حساب بالفعل؟</span>
+                            <button type="button" class="btn-link" onclick="switchAuth('login')">تسجيل الدخول</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab active" onclick="switchTab('login')">تسجيل الدخول</button>
-          <button class="tab" onclick="switchTab('register')">إنشاء حساب</button>
-        </div>
-
-        <!-- Login Form -->
-        <div id="login-tab" class="tab-content active">
-          <form id="login-form" onsubmit="handleLogin(event)">
-            <div class="form-group">
-              <label class="form-label" for="login-email">البريد الإلكتروني</label>
-              <input 
-                type="email" 
-                id="login-email" 
-                class="form-input" 
-                required
-                placeholder="example@email.com"
-              >
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="login-password">كلمة المرور</label>
-              <input 
-                type="password" 
-                id="login-password" 
-                class="form-input" 
-                required
-                placeholder="••••••••"
-              >
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block" id="login-btn">
-              تسجيل الدخول
-            </button>
-          </form>
-        </div>
-
-        <!-- Register Form -->
-        <div id="register-tab" class="tab-content">
-          <form id="register-form" onsubmit="handleRegister(event)">
-            <div class="form-group">
-              <label class="form-label" for="register-email">البريد الإلكتروني</label>
-              <input 
-                type="email" 
-                id="register-email" 
-                class="form-input" 
-                required
-                placeholder="example@email.com"
-              >
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="register-password">كلمة المرور</label>
-              <input 
-                type="password" 
-                id="register-password" 
-                class="form-input" 
-                required
-                minlength="6"
-                placeholder="••••••••"
-              >
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="register-confirm">تأكيد كلمة المرور</label>
-              <input 
-                type="password" 
-                id="register-confirm" 
-                class="form-input" 
-                required
-                minlength="6"
-                placeholder="••••••••"
-              >
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="register-role">نوع الحساب</label>
-              <select id="register-role" class="form-select">
-                <option value="user">مستخدم عادي</option>
-                <option value="admin">مسؤول</option>
-              </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block" id="register-btn">
-              إنشاء حساب
-            </button>
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <script src="api.js"></script>
-  <script>
-    // Check if already logged in
-    if (isAuthenticated()) {
-      const role = getUserRole();
-      if (role === 'admin') {
-        window.location.href = 'admin.html';
-      } else {
-        window.location.href = 'form.html';
-      }
-    }
+    <script src="api.js"></script>
+    <script>
+        // Check if already logged in
+        if (isAuthenticated()) {
+            const role = getUserRole();
+            if (role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'form.html';
+            }
+        }
 
-    // Switch between tabs
-    function switchTab(tabName) {
-      const tabs = document.querySelectorAll('.tab');
-      const tabContents = document.querySelectorAll('.tab-content');
+        // Switch between auth forms
+        function switchAuth(mode) {
+            const loginTab = document.getElementById('login-tab');
+            const registerTab = document.getElementById('register-tab');
 
-      tabs.forEach(tab => tab.classList.remove('active'));
-      tabContents.forEach(content => content.classList.remove('active'));
+            if (mode === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                document.title = 'تسجيل الدخول';
+            } else {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                document.title = 'إنشاء حساب جديد';
+            }
+        }
 
-      if (tabName === 'login') {
-        tabs[0].classList.add('active');
-        document.getElementById('login-tab').classList.add('active');
-      } else {
-        tabs[1].classList.add('active');
-        document.getElementById('register-tab').classList.add('active');
-      }
-    }
+        // Handle login
+        async function handleLogin(event) {
+            event.preventDefault();
 
-    // Handle login
-    async function handleLogin(event) {
-      event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
 
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-      const btn = document.getElementById('login-btn');
+            // Show loading state
+            btn.disabled = true;
+            btn.classList.add('btn-loading');
+            btn.textContent = '';
 
-      // Show loading state
-      btn.disabled = true;
-      btn.classList.add('btn-loading');
-      btn.textContent = '';
+            const result = await login(email, password);
 
-      const result = await login(email, password);
+            // Reset button
+            btn.disabled = false;
+            btn.classList.remove('btn-loading');
+            btn.textContent = 'تسجيل الدخول';
 
-      // Reset button
-      btn.disabled = false;
-      btn.classList.remove('btn-loading');
-      btn.textContent = 'تسجيل الدخول';
+            if (result.success) {
+                showToast('تم تسجيل الدخول بنجاح', 'success');
 
-      if (result.success) {
-        showToast('تم تسجيل الدخول بنجاح', 'success');
-        
-        // Redirect based on role
-        setTimeout(() => {
-          if (result.data.role === 'admin') {
-            window.location.href = 'admin.html';
-          } else {
-            window.location.href = 'form.html';
-          }
-        }, 500);
-      } else {
-        showToast(result.message, 'error');
-      }
-    }
+                // Redirect based on role
+                setTimeout(() => {
+                    if (result.data.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'form.html';
+                    }
+                }, 500);
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
 
-    // Handle registration
-    async function handleRegister(event) {
-      event.preventDefault();
+        // Handle registration
+        async function handleRegister(event) {
+            event.preventDefault();
 
-      const email = document.getElementById('register-email').value;
-      const password = document.getElementById('register-password').value;
-      const confirm = document.getElementById('register-confirm').value;
-      const role = document.getElementById('register-role').value;
-      const btn = document.getElementById('register-btn');
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            const role = document.getElementById('register-role').value;
+            const btn = document.getElementById('register-btn');
 
-      // Validate password match
-      if (password !== confirm) {
-        showToast('كلمات المرور غير متطابقة', 'error');
-        return;
-      }
+            // Validate password match
+            if (password !== confirm) {
+                showToast('كلمات المرور غير متطابقة', 'error');
+                return;
+            }
 
-      // Show loading state
-      btn.disabled = true;
-      btn.classList.add('btn-loading');
-      btn.textContent = '';
+            // Show loading state
+            btn.disabled = true;
+            btn.classList.add('btn-loading');
+            btn.textContent = '';
 
-      const result = await register(email, password, role);
+            const result = await register(email, password, role);
 
-      // Reset button
-      btn.disabled = false;
-      btn.classList.remove('btn-loading');
-      btn.textContent = 'إنشاء حساب';
+            // Reset button
+            btn.disabled = false;
+            btn.classList.remove('btn-loading');
+            btn.textContent = 'إنشاء حساب';
 
-      if (result.success) {
-        showToast(result.message, 'success');
-        
-        // Clear form and switch to login
-        document.getElementById('register-form').reset();
-        setTimeout(() => {
-          switchTab('login');
-        }, 2000);
-      } else {
-        showToast(result.message, 'error');
-      }
-    }
-  </script>
+            if (result.success) {
+                showToast(result.message, 'success');
+
+                // Clear form and switch to login
+                document.getElementById('register-form').reset();
+                setTimeout(() => {
+                    switchAuth('login');
+                }, 2000);
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+    </script>
 </body>
+
 </html>

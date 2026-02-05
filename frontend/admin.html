@@ -6,10 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - المسؤول</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <div class="app-container">
+        <!-- AppBar -->
+        <header class="app-bar">
+            <div class="welcome-msg" id="welcome-message-header">مرحباً بك</div>
+            <div class="app-bar-actions">
+                <button class="aside-toggle" onclick="toggleMenu()">☰</button>
+            </div>
+        </header>
+
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">نظام البيانات</div>
@@ -21,15 +30,37 @@
             </ul>
         </aside>
 
-        <!-- Mobile menu toggle -->
-        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-
         <!-- Main content -->
         <div class="main-content">
             <div class="card">
                 <div class="card-header">
                     <h1 class="card-title">لوحة التحكم - المسؤول</h1>
-                    <p class="card-subtitle">إدارة المستخدمين والبيانات</p>
+                    <p class="card-subtitle">إحصائيات وبيانات النظام</p>
+                </div>
+
+                <!-- Insights Section -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-records-count">0</div>
+                        <div class="stat-label">إجمالي السجلات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="today-records-count">0</div>
+                        <div class="stat-label">سجلات اليوم</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pending-users-count">0</div>
+                        <div class="stat-label">مستخدمون معلقون</div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <canvas id="recordsChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="governorateChart"></canvas>
+                    </div>
                 </div>
 
                 <!-- Tabs -->
@@ -97,6 +128,12 @@
         // Load data on page load
         loadPendingUsers();
         loadAllRecords();
+
+        // Set welcome message
+        const userEmail = getUserEmail();
+        if (userEmail) {
+            document.getElementById('welcome-message-header').textContent = `مرحباً بك، ${userEmail}`;
+        }
 
         // Toggle mobile menu
         function toggleMenu() {
@@ -188,37 +225,107 @@
 
             if (result.success) {
                 allRecords = result.data;
+                updateInsights(allRecords);
                 if (allRecords.length === 0) {
                     container.innerHTML = '<p class="text-center" style="color: var(--text-secondary);">لا توجد سجلات</p>';
                 } else {
                     displayRecords(allRecords);
+                    initCharts(allRecords);
                 }
             } else {
                 container.innerHTML = '<p class="text-center" style="color: var(--danger-color);">فشل في تحميل السجلات</p>';
             }
         }
 
+        function updateInsights(records) {
+            document.getElementById('total-records-count').textContent = records.length;
+
+            const today = new Date().toLocaleDateString('en-US');
+            const todayCount = records.filter(r => new Date(r.Timestamp).toLocaleDateString('en-US') === today).length;
+            document.getElementById('today-records-count').textContent = todayCount;
+        }
+
+        async function updatePendingCount() {
+            const result = await getPendingUsers();
+            if (result.success) {
+                document.getElementById('pending-users-count').textContent = result.data.length;
+            }
+        }
+        updatePendingCount();
+
+        function initCharts(records) {
+            // Governorate Distribution
+            const govData = {};
+            records.forEach(r => {
+                const gov = r['المحافظة'] || 'غير محدد';
+                govData[gov] = (govData[gov] || 0) + 1;
+            });
+
+            const ctxGov = document.getElementById('governorateChart').getContext('2d');
+            new Chart(ctxGov, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(govData),
+                    datasets: [{
+                        data: Object.values(govData),
+                        backgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6', '#34495e']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: { display: true, text: 'توزيع الحالات حسب المحافظة' }
+                }
+            });
+
+            // Activity over time
+            const activityData = {};
+            records.forEach(r => {
+                const date = new Date(r.Timestamp).toLocaleDateString();
+                activityData[date] = (activityData[date] || 0) + 1;
+            });
+
+            const ctxAct = document.getElementById('recordsChart').getContext('2d');
+            new Chart(ctxAct, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(activityData),
+                    datasets: [{
+                        label: 'السجلات المضافة',
+                        data: Object.values(activityData),
+                        borderColor: '#2c3e50',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { yAxes: [{ ticks: { beginAtZero: true, stepSize: 1 } }] }
+                }
+            });
+        }
+
         // Display records
         function displayRecords(records) {
             const container = document.getElementById('records-container');
 
-            let html = '<div class="table-container"><table id="records-table"><thead><tr>';
+            let html = '<div class="table-container"><table class="data-table" id="records-table"><thead><tr>';
             html += '<th>الاسم</th><th>الرقم القومي</th><th>التليفون</th><th>القرية</th><th>المحافظة</th><th>الإجراءات</th>';
             html += '</tr></thead><tbody>';
 
             records.forEach(record => {
                 html += `
           <tr>
-            <td>${record['الاسم ثلاثي'] || '-'}</td>
-            <td>${record['الرقم القومي'] || '-'}</td>
-            <td>${record['رقم التليفون'] || '-'}</td>
-            <td>${record['القرية'] || '-'}</td>
-            <td>${record['المحافظة'] || '-'}</td>
-            <td>
-              <button class="btn btn-outline" onclick='editRecord(${JSON.stringify(record)})' style="padding: 0.5rem 1rem; font-size: 0.875rem; margin-left: 0.5rem;">
+            <td data-label="الاسم">${record['الاسم ثلاثي'] || record['الاسم رباعي'] || '-'}</td>
+            <td data-label="الرقم القومي">${record['الرقم القومي'] || '-'}</td>
+            <td data-label="التليفون">${record['رقم التليفون'] || '-'}</td>
+            <td data-label="القرية">${record['القرية'] || '-'}</td>
+            <td data-label="المحافظة">${record['المحافظة'] || '-'}</td>
+            <td data-label="الإجراءات">
+              <button class="btn btn-outline btn-small" onclick='editRecord(${JSON.stringify(record)})' style="margin-left: 0.5rem;">
                 تعديل
               </button>
-              <button class="btn btn-danger" onclick="deleteRecordConfirm('${record['الرقم القومي']}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+              <button class="btn btn-danger btn-small" onclick="deleteRecordConfirm('${record['الرقم القومي']}')">
                 حذف
               </button>
             </td>
@@ -253,21 +360,21 @@
             currentEditNationalId = record['الرقم القومي'];
 
             const fields = [
-                { label: 'الاسم ثلاثي', key: 'الاسم ثلاثي' },
+                { label: 'الاسم رباعي', key: 'الاسم رباعي' },
                 { label: 'رقم التليفون', key: 'رقم التليفون' },
-                { label: 'القرية', key: 'القرية' },
                 { label: 'المحافظة', key: 'المحافظة' },
+                { label: 'القرية', key: 'القرية' },
                 { label: 'نوع الاعاقة', key: 'نوع الاعاقة' },
-                { label: 'دليل القرية', key: 'دليل القرية' },
-                { label: 'رقم دليل القرية', key: 'رقم دليل القرية' },
-                { label: 'المركز الطبي الشريك', key: 'المركز الطبي الشريك' },
-                { label: 'الخدمة المقدمة', key: 'الخدمة المقدمة' },
                 { label: 'فورتي موكس', key: 'فورتي موكس' },
                 { label: 'الشركة الشريكة بتنفيذ النظارات', key: 'الشركة الشريكة بتنفيذ النظارات' },
                 { label: 'رقم مسؤول الشركة', key: 'رقم مسؤول الشركة' },
-                { label: 'الملاحظات الخاصة بتنفيذ النظارات', key: 'الملاحظات الخاصة بتنفيذ النظارات' },
+                { label: 'المركز الطبي الشريك', key: 'المركز الطبي الشريك' },
+                { label: 'الخدمة', key: 'الخدمة' },
                 { label: 'المركز والشريك الطبي', key: 'المركز والشريك الطبي' },
                 { label: 'الجهة', key: 'الجهة' },
+                { label: 'دليل القرية', key: 'دليل القرية' },
+                { label: 'رقم دليل القرية', key: 'رقم دليل القرية' },
+                { label: 'الملاحظات الخاصة بتنفيذ النظارات', key: 'الملاحظات الخاصة بتنفيذ النظارات' },
                 { label: 'الملاحظات للعمليات', key: 'الملاحظات للعمليات' },
                 { label: 'الكود', key: 'الكود' }
             ];
