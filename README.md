@@ -78,10 +78,6 @@ AppScript/
 
 [Add your deployed URL here]
 
-## 📝 License
-
-MIT License
-
 ## 👨‍💻 Author
 
-[Your Name]
+Mohamed Mabrouk
