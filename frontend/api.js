@@ -48,6 +48,37 @@ function logout() {
     window.location.href = 'index.html';
 }
 
+// Ensure Admin Dashboard link persists
+function updateNavigation() {
+    const role = getUserRole();
+    const navList = document.querySelector('.nav-links');
+
+    if (role === 'admin' && navList) {
+        // Check if admin link already exists
+        if (!document.querySelector('a[href="admin.html"]')) {
+            const li = document.createElement('li');
+            li.innerHTML = '<a href="admin.html"><i class="fas fa-user-shield"></i> Admin Dashboard</a>';
+            // Insert as first item
+            navList.insertBefore(li, navList.firstChild);
+        }
+    }
+
+    // Add "My Records" link if logged in
+    if (isAuthenticated() && navList) {
+        if (!document.querySelector('a[href="my-records.html"]')) {
+            const li = document.createElement('li');
+            li.innerHTML = '<a href="my-records.html"><i class="fas fa-list"></i> My Records</a>';
+            // Insert before Logout
+            const logoutLink = document.querySelector('a[onclick="logout()"]').parentElement;
+            navList.insertBefore(li, logoutLink);
+        }
+    }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', updateNavigation);
+
+
 // Register user
 async function register(email, password, role = 'user') {
     try {
@@ -97,6 +128,7 @@ async function login(email, password) {
             setToken(data.data.token);
             setUserRole(data.data.role);
             setUserEmail(data.data.email);
+            updateNavigation(); // Update nav immediately after login
         }
 
         return data;
@@ -197,7 +229,34 @@ async function getAllRecords() {
     }
 }
 
-// Update record (admin only)
+// Get User's Own Records
+async function getUserRecords() {
+    try {
+        const url = `${API_URL}?action=getUserRecords&token=${getToken()}`;
+
+        const response = await fetch(url, {
+            method: 'GET'
+        });
+
+        const data = await response.json();
+
+        // Handle unauthorized
+        if (!data.success && data.message.includes('Unauthorized')) {
+            logout();
+        }
+
+        return data;
+
+    } catch (error) {
+        console.error('Get user records error:', error);
+        return {
+            success: false,
+            message: 'Network error. Please try again.'
+        };
+    }
+}
+
+// Update record
 async function updateRecord(nationalId, updates) {
     try {
         const response = await fetch(API_URL, {
@@ -231,7 +290,7 @@ async function updateRecord(nationalId, updates) {
     }
 }
 
-// Delete record (admin only)
+// Delete record
 async function deleteRecord(nationalId) {
     try {
         const response = await fetch(API_URL, {

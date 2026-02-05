@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجلاتي - My Records</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-database"></i> نظام البيانات
+            </div>
+            <ul class="nav-links">
+                <li><a href="form.html"><i class="fas fa-plus-circle"></i> إدخال بيانات</a></li>
+                <li><a href="search.html"><i class="fas fa-search"></i> بحث</a></li>
+                <li><a href="my-records.html" class="active"><i class="fas fa-list"></i> سجلاتي</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1>سجلاتي (My Records)</h1>
+            <p style="margin-bottom: 20px;">عرض وإدارة البيانات التي قمت بإدخالها.</p>
+
+            <div class="search-container">
+                <input type="text" id="filterInput" class="search-input" placeholder="تصفية النتائج...">
+            </div>
+
+            <div id="loading" style="text-align: center; display: none;">
+                <div class="spinner"
+                    style="display: inline-block; border-color: var(--secondary-color); border-top-color: var(--accent-color);">
+                </div>
+                <p>جاري تحميل البيانات...</p>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table" id="recordsTable">
+                    <thead>
+                        <tr>
+                            <th>م</th>
+                            <th>الاسم</th>
+                            <th>الرقم القومي</th>
+                            <th>رقم التليفون</th>
+                            <th>الخدمة</th>
+                            <th>تاريخ الإدخال</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="noDataResult" style="text-align: center; margin-top: 20px; color: #777; display: none;">لا توجد سجلات
+                لعرضها.</p>
+        </main>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        // Check authentication
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        // Toggle Sidebar
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Load Data on Start
+        document.addEventListener('DOMContentLoaded', loadMyRecords);
+
+        let allRecords = [];
+
+        async function loadMyRecords() {
+            const tableBody = document.querySelector('#recordsTable tbody');
+            const loading = document.getElementById('loading');
+            const noData = document.getElementById('noDataResult');
+
+            loading.style.display = 'block';
+            tableBody.innerHTML = '';
+            noData.style.display = 'none';
+
+            const result = await getUserRecords();
+
+            loading.style.display = 'none';
+
+            if (result.success && result.data && result.data.length > 0) {
+                allRecords = result.data;
+                renderTable(allRecords);
+            } else {
+                noData.style.display = 'block';
+            }
+        }
+
+        function renderTable(records) {
+            const tableBody = document.querySelector('#recordsTable tbody');
+            tableBody.innerHTML = '';
+            const noData = document.getElementById('noDataResult');
+
+            if (records.length === 0) {
+                noData.style.display = 'block';
+                return;
+            }
+            noData.style.display = 'none';
+
+            records.forEach((record, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${record['الاسم رباعي'] || '-'}</td>
+                    <td>${record['الرقم القومي'] || '-'}</td>
+                    <td>${record['رقم التليفون'] || '-'}</td>
+                    <td>${record['الخدمة'] || '-'}</td>
+                    <td>${new Date(record['Timestamp']).toLocaleDateString('ar-EG')}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-small btn-danger" onclick="confirmDelete('${record['الرقم القومي']}')">حذف</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Filter Logic
+        document.getElementById('filterInput').addEventListener('keyup', function (e) {
+            const term = e.target.value.toLowerCase();
+            const filtered = allRecords.filter(r =>
+                (r['الاسم رباعي'] && r['الاسم رباعي'].toLowerCase().includes(term)) ||
+                (r['الرقم القومي'] && r['الرقم القومي'].includes(term))
+            );
+            renderTable(filtered);
+        });
+
+        // Delete Logic
+        async function confirmDelete(nationalId) {
+            if (confirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.')) {
+
+                // Show some loading state
+                const btns = document.querySelectorAll('button');
+                btns.forEach(b => b.disabled = true);
+
+                const result = await deleteRecord(nationalId);
+
+                if (result.success) {
+                    showToast('تم الحذف بنجاح', 'success');
+                    await loadMyRecords(); // Reload
+                } else {
+                    showToast(result.message || 'حدث خطأ أثناء الحذف', 'error');
+                    btns.forEach(b => b.disabled = false);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
