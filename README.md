@@ -25,13 +25,13 @@ AppScript/
 │   ├── SheetService.gs
 │   └── Utils.gs
 │
-└── frontend/         # Static web files
-    ├── index.html
-    ├── form.html
-    ├── search.html
-    ├── admin.html
-    ├── styles.css
-    └── api.js
+├── index.html        # Main landing (Login/Register)
+├── form.html         # Data entry form
+├── search.html       # Search page
+├── admin.html        # Admin dashboard
+├── my-records.html   # User records page
+├── styles.css        # Global styles
+└── api.js            # Frontend API client
 ```
 
 ## 🛠️ Setup
