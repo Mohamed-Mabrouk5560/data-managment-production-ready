@@ -4,7 +4,7 @@ A production-ready web application for data entry and retrieval with Google Apps
 
 ## 🚀 Features
 
-- ✅ Email/password authentication with SHA-256 hashing
+- ✅ Email/password authentication
 - ✅ Admin confirmation required for new users
 - ✅ Role-based access control (user/admin)
 - ✅ Data entry form with 18 fields
