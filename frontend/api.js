@@ -3,8 +3,12 @@
 // ============================================
 
 // IMPORTANT: Replace this with your deployed Apps Script Web App URL
+<<<<<<< HEAD
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzJ6i7OXsFzlY_YMEybWYpp0IKAMB_XymojsFAMEv0XHEy1PTR-2I0wMxmL9Nid-7vLA/exec';
 
+=======
+const API_URL = 'https://script.google.com/macros/s/AKfycbwaXi-_yPLBDyuIn3ap8b30rAiQpPR-4fre9XnuaivLd9vCcj7ZVNWjM1VWrotWsl2hjA/exec';
+>>>>>>> f81dd605026572b9d2f9ed668967029234b465ed
 
 // Token management
 function getToken() {
