@@ -51,11 +51,17 @@ function logout() {
 // Register user
 async function register(email, password, role = 'user') {
     try {
-        // Use GET with URL parameters to avoid CORS preflight
-        const url = `${API_URL}?action=register&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&role=${encodeURIComponent(role)}`;
-
-        const response = await fetch(url, {
-            method: 'GET'
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({
+                action: 'register',
+                email: email,
+                password: password,
+                role: role
+            })
         });
 
         const data = await response.json();
@@ -73,11 +79,16 @@ async function register(email, password, role = 'user') {
 // Login user
 async function login(email, password) {
     try {
-        // Use GET with URL parameters to avoid CORS preflight
-        const url = `${API_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-
-        const response = await fetch(url, {
-            method: 'GET'
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({
+                action: 'login',
+                email: email,
+                password: password
+            })
         });
 
         const data = await response.json();
@@ -105,7 +116,7 @@ async function submitData(formData) {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain;charset=utf-8',
             },
             body: JSON.stringify({
                 action: 'submitData',
@@ -192,7 +203,7 @@ async function updateRecord(nationalId, updates) {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain;charset=utf-8',
             },
             body: JSON.stringify({
                 action: 'updateRecord',
@@ -226,7 +237,7 @@ async function deleteRecord(nationalId) {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain;charset=utf-8',
             },
             body: JSON.stringify({
                 action: 'deleteRecord',
@@ -286,7 +297,7 @@ async function confirmUser(email) {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain;charset=utf-8',
             },
             body: JSON.stringify({
                 action: 'confirmUser',
