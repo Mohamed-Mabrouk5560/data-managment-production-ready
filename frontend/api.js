@@ -421,6 +421,9 @@ async function addEntityValue(entityName, value) {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
             body: JSON.stringify({
                 action: 'addEntityValue',
                 token: getToken(),
@@ -438,6 +441,9 @@ async function updateEntityValue(entityName, oldValue, newValue) {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
             body: JSON.stringify({
                 action: 'updateEntityValue',
                 token: getToken(),
@@ -456,6 +462,9 @@ async function deleteEntityValue(entityName, value) {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
             body: JSON.stringify({
                 action: 'deleteEntityValue',
                 token: getToken(),

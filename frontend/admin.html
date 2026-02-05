@@ -98,13 +98,16 @@
             <div class="modal-header">
                 <h2 class="modal-title">تعديل السجل</h2>
             </div>
-            <form id="edit-form" onsubmit="handleUpdate(event)">
-                <div id="edit-fields"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-primary" id="update-btn">حفظ التعديلات</button>
-                </div>
-            </form>
+            <div class="modal-body">
+                <form id="edit-form" onsubmit="handleUpdate(event)">
+                    <div id="edit-fields"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeEditModal()">إلغاء</button>
+                <button type="button" class="btn btn-primary" id="update-btn"
+                    onclick="document.getElementById('edit-form').requestSubmit()">حفظ التعديلات</button>
+            </div>
         </div>
     </div>
 
